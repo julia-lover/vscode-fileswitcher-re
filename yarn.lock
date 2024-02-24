@@ -633,9 +633,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fileswitcher@workspace:.":
+"fileswitcher-re@workspace:.":
   version: 0.0.0-use.local
-  resolution: "fileswitcher@workspace:."
+  resolution: "fileswitcher-re@workspace:."
   dependencies:
     "@types/node": ^16.6.1
     "@types/vscode": ^1.59.0

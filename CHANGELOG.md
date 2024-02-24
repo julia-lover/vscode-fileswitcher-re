@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.0.0
+
+### Features
+
+- Being forked, Changed a lot. Incompatible with pre-forked version unless rewriting config. Take a glance at README.md.
+
+# Changelog
+
 ## v1.0.0
 
 ### Featurea

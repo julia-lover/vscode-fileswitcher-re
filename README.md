@@ -1,10 +1,19 @@
-# FileSwitcher
+# FileSwitcher:Re
 
-FileSwitcher is an unopinionated VSCode extension that allows you to quickly jump to a file, of any type or location in your project, related to the currently opened file.
+FileSwitcher:Re is an unopinionated VSCode extension that allows you to quickly jump to a file, of any type or location in your project, related to the currently opened file.
 
 Switch to a test file and back to your code, go from JS to CSS, from a models folder to a controllers folder, and so on.
 
 Easily write your own rules to match any file type based on your own application structure.5
+
+The original version is [here](https://github.com/johnathanludwig/vscode-fileswitcher/main).
+
+Changes from the original are as follows.
+
+- Creating file no longer fail in my own environment. (This is MAIN and PERSONAL REASON why I forked this.)
+- Changed the character which symbolizes capture groups from ":" to "$". (This can be changed from config.)
+- Enabled to use "/" as a file separator although I'm using Windows. (This can also be changed. You can use "\\\\" same as original.)
+- You can now switch files when you tried to create a file but all mappings were already created.
 
 ### Preview
 
@@ -34,31 +43,54 @@ Default Keybind: `alt + shift + R`
 
 Will display a list of mappings for the current file that do not exist. When selecting one it will create the file at the given path.
 
+### Create file from mapping and Switch to it
+
+Same as ahead but will open the created file.
+
+### Create file from mapping and Switch to it in Split Editor
+
+Same as ahead but will open the created file in a split editor.
+
 ### List generated mappings for current file
 
 Displays the generated file names used for matching for the current file. Useful for debugging mappings.
 
 ## Configuration
 
-### fileswitcher.mappings
+### fileswitcher-re.mappings
 
 A configurable set of rules for files to match related files. Mappings should be an array of JSON objects. Each object should include a `from` and a `to` key.
 
 The `from` key must be a string that converts to a regex. This regex should match the file you are triggering the "Switch File" command on.
 
-The `to` key should be a string path to the target file to open when "Switch File" is triggered. You may use matches in the regex in the `from` setting by using `:<match number>`.
+The `to` key should be a string path to the target file to open when "Switch File" is triggered. You may use matches in the regex in the `from` setting by using `$<match number>`.
+
+### fileswitcher-re.capture-symbol
+
+Character to symbolizes capture groups.
+default: "$"
+
+### fileswitcher-re.force-posix
+
+Whether using a POSIX file separator even in Windows. If true, "/" will be used.
+default: true
+
+### fileswitcher-re.switch-to-exists
+
+Whether you can alternatively switch files when you try to create a file but every mappings is already created.
+default: true
 
 #### Example
 
 ```json
-"fileswitcher.mappings": [
+"fileswitcher-re.mappings": [
   {
     "from": "app/(.+)\\.(.+)", // app/components/button/button.js
-    "to": "test/:1.test.:2"    // test/components/button/button.test.js
+    "to": "test/$1.test.$2"    // test/components/button/button.test.js
   },
   {
     "from": "test/(.+).test\\.(.+)", // test/components/button/button.test.js
-    "to": "app/:1.:2"                // app/components/button/button.js
+    "to": "app/$1.$2"                // app/components/button/button.js
   }
 ]
 ```

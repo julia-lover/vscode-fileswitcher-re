@@ -1,10 +1,36 @@
-import * as fs from "fs";
 import { sep } from "path";
 
 import * as vscode from "vscode";
 
+import * as fs from "fs";
+
+export function unformatPath(filePath: string): string {
+  if (vscode.workspace.getConfiguration().get("fileswitcher-re.force-posix")) {
+    if (sep == "\\") {
+      return filePath.replace(new RegExp("/", "g"), "\\");
+    }
+  } else {
+    return filePath;
+  }
+}
+
+export function formatPath(filePath: string): string {
+  if (vscode.workspace.getConfiguration().get("fileswitcher-re.force-posix")) {
+    if (sep == "\\") {
+      return filePath.replace(new RegExp("\\\\", "g"), "/");
+    }
+  } else {
+    return filePath;
+  }
+}
+
 export function workspaceRootPath(): string {
-  return vscode.workspace.workspaceFolders[0].uri.path + sep;
+  const path = unformatPath(vscode.workspace.workspaceFolders[0].uri.path) + sep;
+  if (path.substring(0, 1) == sep) {
+    return path.slice(1);
+  } else {
+    return path;
+  }
 }
 
 export function stripRootPath(file: string): string {
@@ -20,6 +46,15 @@ export function openFile(
   vscode.window.showTextDocument(file, { viewColumn: column });
 }
 
+export function openFileSplit(file: vscode.Uri): void {
+  const column =
+      vscode.window.activeTextEditor.viewColumn === 1
+        ? vscode.ViewColumn.Two
+        : vscode.ViewColumn.One;
+
+  openFile(file, column);
+}
+
 export function currentFile(): string {
   const currentFile = vscode.window.activeTextEditor;
 
@@ -28,30 +63,20 @@ export function currentFile(): string {
   return stripRootPath(currentFile.document.fileName);
 }
 
-export function arrayToGlob(matches: string[]): string {
-  const glob = "{" + matches.join(",") + "}";
-
-  return glob;
-}
-
 export const fileExists = (filePath: string): boolean => {
-  return fs.existsSync(filePath);
+  return fs.existsSync(workspaceRootPath() + filePath);
 };
 
 export const createFile = (filePath: string): void => {
-  const folders = filePath.split(sep);
-  folders.pop();
-  fs.mkdirSync(folders.join(sep), { recursive: true });
-
-  fs.appendFileSync(filePath, "", "utf-8");
+  const edit = new vscode.WorkspaceEdit();
+  edit.createFile(vscode.Uri.file(filePath));
+  vscode.workspace.applyEdit(edit);
 };
 
 export const createFileIfNotExists = (filePath: string): void => {
-  if (fileExists(filePath)) {
-    return;
+  if (!fileExists(filePath)) {
+    createFile(filePath);
   }
-
-  createFile(filePath);
 };
 
 export function displayStatusBarMessage(message: string): void {

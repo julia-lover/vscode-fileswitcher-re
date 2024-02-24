@@ -1,86 +1,101 @@
 import * as vscode from "vscode";
 
 import {
-  arrayToGlob,
+  formatPath,
+  unformatPath,
   currentFile,
   displayStatusBarMessage,
   stripRootPath,
   workspaceRootPath,
+  fileExists,
 } from "./utils";
-
-const REGEX_SYMBOL = ":";
 
 type Mapping = {
   from: string;
   to: string;
 };
 
-type Match = {
+export type Match = {
   path: string;
+  formatted: string;
 } & Mapping;
 
-export function generateFilePaths(filePath: string): Match[] {
-  const mappings: Mapping[] = vscode.workspace
-    .getConfiguration()
-    .get("fileswitcher.mappings");
+export function generateFilePaths(filePath: string): Promise<Match[]> {
+  return new Promise((resolve) => {
+    const mappings: Mapping[] = vscode.workspace
+      .getConfiguration()
+      .get("fileswitcher-re.mappings");
+    const symbol: string = vscode.workspace.getConfiguration().get("fileswitcher-re.capture-symbol");
 
-  const matches = [];
+    const matches = [];
 
-  mappings.forEach((mapping) => {
-    const regexp = new RegExp(mapping["from"], "i");
-    const match = regexp.exec(filePath);
+    mappings.forEach((mapping) => {
+      const regexp = new RegExp((mapping["from"]), "i");
+      const match = regexp.exec(formatPath(filePath));
 
-    if (match === null) return;
+      if (match === null) return;
 
-    let newFilePath = mapping["to"];
+      let newFilePath = mapping["to"];
 
-    match.forEach((item, index) => {
-      newFilePath = newFilePath.replace(
-        new RegExp(REGEX_SYMBOL + index, "g"),
-        item
-      );
+      match.forEach((item, index) => {
+        newFilePath = newFilePath.replace(
+          new RegExp(symbol + index, "g"),
+          item
+        );
+      });
+
+      matches.push({ from: mapping.from, to: mapping.to, formatted: formatPath(newFilePath), path: unformatPath(newFilePath) });
     });
 
-    matches.push({ from: mapping.from, to: mapping.to, path: newFilePath });
+    if (matches.length === 0) {
+      displayStatusBarMessage('No mappings match current file. Check the "from" of your mappings.');
+    } else {
+      resolve(matches);
+    }
+  return;
+  })
+}
+
+export async function findFile(): Promise<vscode.Uri> {
+  return new Promise((resolve) => {
+    const filePath = currentFile();
+    if (filePath === undefined) return;
+
+    generateFilePaths(filePath).then((matches: Match[]) => {
+      const ms = new Array<Match>();
+      matches.forEach((match) => {
+        if (fileExists(match.path)) {
+          ms.push(match);
+        }
+      });
+      if (ms.length === 0) {
+        displayStatusBarMessage("No files to switch.")
+        return;
+      } else if (ms.length === 1) {
+        resolve(vscode.Uri.file(workspaceRootPath() + ms[0].path));
+        return;
+      }
+      selectFile(ms).then((file: vscode.Uri) => {
+        resolve(file);
+      });
+    });
   });
-
-  return matches;
 }
 
-function findMatchingFiles(file: string): Thenable<vscode.Uri[]> {
-  const matches = generateFilePaths(file);
-
-  return vscode.workspace.findFiles(
-    arrayToGlob(matches.map((match) => match.path)),
-    ""
-  );
-}
-
-export async function findFile(
-  onSelect: (file: vscode.Uri) => void
-): Promise<void> {
-  const filePath = currentFile();
-  if (filePath === undefined) return;
-
-  const files = await findMatchingFiles(filePath);
-
-  if (files.length === 0) {
-    displayStatusBarMessage("No matching file found.");
-  } else if (files.length === 1) {
-    onSelect(files[0]);
-  } else {
+export async function selectFile(matches: Match[], title = "Select File"): Promise<vscode.Uri> {
+  return new Promise((resolve) => {
     const quickPick = vscode.window.createQuickPick();
-    quickPick.title = "Select File";
-    quickPick.items = files.map((file) => ({
-      label: stripRootPath(file.path),
-      path: file.path,
+    quickPick.title = title;
+    quickPick.items = matches.map((match) => ({
+      label: stripRootPath(match.formatted),
+      description: `From ${match.from} — To ${match.to}`
     }));
     quickPick.onDidChangeSelection((selectedFiles) => {
-      const file = files.find(
-        (file) => file.path === workspaceRootPath() + selectedFiles[0].label
+      const match = matches.find(
+        (match) => stripRootPath(match.formatted) === selectedFiles[0].label
       );
-      onSelect(file);
+      resolve(vscode.Uri.file(workspaceRootPath() + match.path));
     });
     quickPick.show();
-  }
+  });
 }

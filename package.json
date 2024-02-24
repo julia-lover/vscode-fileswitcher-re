@@ -1,13 +1,13 @@
 {
-  "name": "fileswitcher",
-  "displayName": "File Switcher",
+  "name": "fileswitcher-re",
+  "displayName": "File Switcher:Re",
   "description": "An unopinionated extension that will quickly jump to a file, of any type or location in your project)], related to the currently opened file.",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "author": {
-    "name": "Johnathan Ludwig",
-    "email": "john@johnathanludwig.com"
+    "name": "Icemilk",
+    "email": "return_undefined@yahoo.co.jp"
   },
-  "publisher": "johnathanludwig",
+  "publisher": "icemilk",
   "engines": {
     "vscode": "^1.59.0"
   },
@@ -16,7 +16,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/johnathanludwig/vscode-fileswitcher.git"
+    "url": "https://github.com/julia-lover/vscode-fileswitcher-re"
   },
   "keywords": [
     "file",
@@ -30,91 +30,96 @@
     "create"
   ],
   "activationEvents": [
-    "onCommand:fileswitcher.switchFile",
-    "onCommand:fileswitcher.switchFileSplit",
-    "onCommand:fileswitcher.listMappings",
-    "onCommand:fileswitcher.createFile"
+    "onCommand:fileswitcher-re.switchFile",
+    "onCommand:fileswitcher-re.switchFileSplit",
+    "onCommand:fileswitcher-re.listMappings",
+    "onCommand:fileswitcher-re.createFile",
+    "onCommand:fileswitcher-re.createAndSwitchFile",
+    "onCommand:fileswitcher-re.createAndSwitchFileSplit"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "configuration": {
       "type": "object",
-      "title": "FileSwitcher configuration",
+      "title": "FileSwitcher:Re configuration",
       "properties": {
-        "fileswitcher.mappings": {
+        "fileswitcher-re.mappings": {
           "type": "array",
           "default": [
             {
-              "from": "(.+)\\.(.+)",
-              "to": ":1.test.:2"
-            },
-            {
-              "from": "(.+)\\.(.+)",
-              "to": ":1_test.:2"
-            },
-            {
-              "from": "(.+)\\.(.+)",
-              "to": ":1.spec.:2"
-            },
-            {
-              "from": "(.+)\\.(.+)",
-              "to": ":1_spec.:2"
-            },
-            {
-              "from": "(.+)(\\.|_)(test|spec)\\.(.+)",
-              "to": ":1.:4"
+              "from": "app/(.+)\\.(.+)",
+              "to": "test/$1_test.$2"
             },
             {
               "from": "app/(.+)\\.(.+)",
-              "to": "test/:1_test.:2"
-            },
-            {
-              "from": "app/(.+)\\.(.+)",
-              "to": "spec/:1_spec.:2"
+              "to": "spec/$1_spec.$2"
             },
             {
               "from": "(test|spec)/(.+)(\\.|_)(test|spec)\\.(.+)",
-              "to": "app/:2.:5"
+              "to": "app/$2.$5"
             },
             {
               "from": "src/(.+)\\.(.+)",
-              "to": "test/:1.test.:2"
+              "to": "test/$1.test.$2"
             },
             {
               "from": "src/(.+)\\.(.+)",
-              "to": "test/:1.spec.:2"
+              "to": "test/$1.spec.$2"
             }
           ],
           "description": "List of file mappings"
+        },
+        "fileswitcher-re.capture-symbol": {
+          "type": "string",
+          "default": "\\$",
+          "description": "A symbol to indentify capture groups in \"to\" of \"fileswitcher-re.mappings\""
+        },
+        "fileswitcher-re.force-posix": {
+          "type": "boolean",
+          "default": true,
+          "description": "If true, / will be used as a separator even in Windows"
+        },
+        "fileswitcher-re.switch-to-exists": {
+          "type": "boolean",
+          "default": true,
+          "description": "If true, you can alternatively switch files when you try to create a file but every mappings is already created."
         }
       }
     },
     "commands": [
       {
-        "command": "fileswitcher.switchFile",
-        "title": "FileSwitcher: Switch File"
+        "command": "fileswitcher-re.switchFile",
+        "title": "FileSwitcher:Re: Switch File"
       },
       {
-        "command": "fileswitcher.switchFileSplit",
-        "title": "FileSwitcher: Switch File in Split Editor"
+        "command": "fileswitcher-re.switchFileSplit",
+        "title": "FileSwitcher:Re: Switch File in Split Editor"
       },
       {
-        "command": "fileswitcher.listMappings",
-        "title": "FileSwitcher: List generated mappings for current file"
+        "command": "fileswitcher-re.listMappings",
+        "title": "FileSwitcher:Re: List generated mappings for current file"
       },
       {
-        "command": "fileswitcher.createFile",
-        "title": "FileSwitcher: Create file from mapping"
+        "command": "fileswitcher-re.createFile",
+        "title": "FileSwitcher:Re: Create file from mapping"
+      },
+      {
+        "command": "fileswitcher-re.createAndSwitchFile",
+        "title": "FileSwitcher:Re: Create file from mapping and Switch to it"
+      },
+      {
+        "command": "fileswitcher-re.createAndSwitchFileSplit",
+        "title": "FileSwitcher:Re: Create file from mapping and Switch to it in Split Editor"
       }
     ],
     "keybindings": [
       {
-        "command": "fileswitcher.switchFile",
+        "command": "fileswitcher-re.switchFile",
         "key": "alt+r",
         "when": "editorTextFocus"
       },
       {
-        "command": "fileswitcher.switchFileSplit",
+        "command": "fileswitcher-re.switchFileSplit",
         "key": "alt+shift+r",
         "when": "editorTextFocus"
       }
