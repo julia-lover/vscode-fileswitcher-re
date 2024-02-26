@@ -32,8 +32,9 @@ export async function createFile(): Promise<vscode.Uri> {
                 }
             } else {
                 selectFile(ms, "Create File").then((file: vscode.Uri) => {
-                    createFileIfNotExists(file.path);
-                    resolve(file);
+                    createFileIfNotExists(file).then(() => {
+                        resolve(file);
+                    });
                 });
             }
         });

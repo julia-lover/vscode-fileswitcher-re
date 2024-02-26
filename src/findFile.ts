@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import * as path from "path"
 
 import {
   formatPath,
@@ -94,7 +95,7 @@ export async function selectFile(matches: Match[], title = "Select File"): Promi
       const match = matches.find(
         (match) => stripRootPath(match.formatted) === selectedFiles[0].label
       );
-      resolve(vscode.Uri.file(workspaceRootPath() + match.path));
+      resolve(vscode.Uri.file(path.join(workspaceRootPath(), match.path)));
     });
     quickPick.show();
   });

@@ -1,4 +1,4 @@
-import { sep } from "path";
+import * as path from "path"
 
 import * as vscode from "vscode";
 
@@ -6,9 +6,7 @@ import * as fs from "fs";
 
 export function unformatPath(filePath: string): string {
   if (vscode.workspace.getConfiguration().get("fileswitcher-re.force-posix")) {
-    if (sep == "\\") {
-      return filePath.replace(new RegExp("/", "g"), "\\");
-    }
+    return filePath.split(path.posix.sep).join(path.sep);
   } else {
     return filePath;
   }
@@ -16,21 +14,14 @@ export function unformatPath(filePath: string): string {
 
 export function formatPath(filePath: string): string {
   if (vscode.workspace.getConfiguration().get("fileswitcher-re.force-posix")) {
-    if (sep == "\\") {
-      return filePath.replace(new RegExp("\\\\", "g"), "/");
-    }
+    return filePath.split(path.sep).join(path.posix.sep);
   } else {
     return filePath;
   }
 }
 
 export function workspaceRootPath(): string {
-  const path = unformatPath(vscode.workspace.workspaceFolders[0].uri.path) + sep;
-  if (path.substring(0, 1) == sep) {
-    return path.slice(1);
-  } else {
-    return path;
-  }
+  return vscode.workspace.workspaceFolders[0].uri.fsPath;
 }
 
 export function stripRootPath(file: string): string {
@@ -42,7 +33,6 @@ export function openFile(
   column = vscode.ViewColumn.Active
 ): void {
   if (file === undefined) return;
-
   vscode.window.showTextDocument(file, { viewColumn: column });
 }
 
@@ -60,23 +50,32 @@ export function currentFile(): string {
 
   if (currentFile === undefined) return;
 
-  return stripRootPath(currentFile.document.fileName);
+  return stripRootPath(currentFile.document.uri.fsPath);
 }
 
 export const fileExists = (filePath: string): boolean => {
-  return fs.existsSync(workspaceRootPath() + filePath);
+  return fs.existsSync(path.join(workspaceRootPath(), filePath));
 };
 
-export const createFile = (filePath: string): void => {
-  const edit = new vscode.WorkspaceEdit();
-  edit.createFile(vscode.Uri.file(filePath));
-  vscode.workspace.applyEdit(edit);
+export const createFile = (uri: vscode.Uri): Promise<void> => {
+  return new Promise((resolve) => {
+    const edit = new vscode.WorkspaceEdit();
+    edit.createFile(uri);
+    displayStatusBarMessage("file created!");
+    vscode.workspace.applyEdit(edit).then(() => {
+      resolve();
+    });
+  });
 };
 
-export const createFileIfNotExists = (filePath: string): void => {
-  if (!fileExists(filePath)) {
-    createFile(filePath);
-  }
+export const createFileIfNotExists = (uri: vscode.Uri): Promise<void> => {
+  return new Promise((resolve) => {
+    if (!fileExists(uri.path)) {
+      createFile(uri).then(() => {
+        resolve();
+      });
+    }
+  });
 };
 
 export function displayStatusBarMessage(message: string): void {

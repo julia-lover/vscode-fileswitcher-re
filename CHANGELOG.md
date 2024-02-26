@@ -1,5 +1,15 @@
 # Changelog
 
+## v2.1.0
+
+### Features
+
+- Fixed the problem not running in the Lunux filesystem.
+
+### Known Issues
+
+- Can't open the file automatically when "Create file and switch to it" in Windows.
+
 ## v2.0.0
 
 ### Features
@@ -10,7 +20,7 @@
 
 ## v1.0.0
 
-### Featurea
+### Features
 
 - Added status message when creating files and no matches are found or all files already exist.
 
