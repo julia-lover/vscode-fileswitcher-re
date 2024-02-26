@@ -95,7 +95,7 @@ default: true
 ]
 ```
 
-In the example above, triggering switch file on `app/components/button/button.js` will match the first mapping, set `:1` to `components/button/button` and `:2` to `js`. Then it will open the related file `test/components/button/button_test.js`. Triggering again on the test file will then match with the second mapping, and switch back to `app/components/button/button.js`.
+In the example above, triggering switch file on `app/components/button/button.js` will match the first mapping, set `$1` to `components/button/button` and `$2` to `js`. Then it will open the related file `test/components/button/button_test.js`. Triggering again on the test file will then match with the second mapping, and switch back to `app/components/button/button.js`.
 
 ## Credits
 

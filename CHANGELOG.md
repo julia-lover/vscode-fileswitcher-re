@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.1.1
+
+- Fixed the problem not able to switch files in Linux.
+
 ## v2.1.0
 
 ### Features

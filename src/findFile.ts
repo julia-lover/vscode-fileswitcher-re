@@ -73,7 +73,7 @@ export async function findFile(): Promise<vscode.Uri> {
         displayStatusBarMessage("No files to switch.")
         return;
       } else if (ms.length === 1) {
-        resolve(vscode.Uri.file(workspaceRootPath() + ms[0].path));
+        resolve(vscode.Uri.file(path.join(workspaceRootPath(), ms[0].path)));
         return;
       }
       selectFile(ms).then((file: vscode.Uri) => {
