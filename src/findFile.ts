@@ -92,6 +92,7 @@ export async function selectFile(matches: Match[], title = "Select File"): Promi
       description: `From ${match.from} — To ${match.to}`
     }));
     quickPick.onDidChangeSelection((selectedFiles) => {
+      quickPick.hide();
       const match = matches.find(
         (match) => stripRootPath(match.formatted) === selectedFiles[0].label
       );

@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.1.2
+
+- Fixed the problem that a quickpick won't hide automatically.
+
 ## v2.1.1
 
 - Fixed the problem not able to switch files in Linux.

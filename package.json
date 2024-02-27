@@ -2,7 +2,7 @@
   "name": "fileswitcher-re",
   "displayName": "File Switcher:Re",
   "description": "An unopinionated extension that will quickly jump to a file, of any type or location in your project)], related to the currently opened file.",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "author": {
     "name": "Icemilk",
     "email": "return_undefined@yahoo.co.jp"
