@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.1.3
+
+- Fixed the problem that a file list includes the current file.
+
 ## v2.1.2
 
 - Fixed the problem that a quickpick won't hide automatically.

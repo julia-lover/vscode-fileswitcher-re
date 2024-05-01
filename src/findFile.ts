@@ -65,7 +65,9 @@ export async function findFile(): Promise<vscode.Uri> {
     generateFilePaths(filePath).then((matches: Match[]) => {
       const ms = new Array<Match>();
       matches.forEach((match) => {
-        if (fileExists(match.path)) {
+        vscode.window.showInformationMessage(match.path)
+        vscode.window.showInformationMessage(filePath)
+        if (fileExists(match.path) && match.path != filePath) {
           ms.push(match);
         }
       });
